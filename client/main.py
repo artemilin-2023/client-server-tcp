@@ -31,7 +31,7 @@ def main():
     socket.connect((configs.IP, configs.PORT))
     logger.info(f"Client {socket.getsockname()[0]}:{socket.getsockname()[1]} connected to {socket.getpeername()[0]}:{socket.getpeername()[1]}")
 
-    time.sleep(10)
+    # time.sleep(10)
     sendMessage = "Артём Ильин Александрович"
     logger.info(f"send data: {sendMessage}")
     socket.send(sendMessage.encode())

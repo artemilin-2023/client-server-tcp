@@ -41,7 +41,7 @@ public class FileLogger : ILogger
         {
             using (var writer = new StreamWriter(filePath, true))
             {
-                var log = $"[{logLevel}] - {DateTime.Now:G} | message: {message}";
+                var log = $"[{logLevel}] - {DateTime.Now:G} | {message}";
                 writer.WriteLine(log);
             }
         }

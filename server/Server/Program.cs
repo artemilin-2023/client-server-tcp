@@ -10,12 +10,24 @@ var configuration = builder.Build();
 
 FileLogger.Setup(configuration["Logging:Folder"], configuration["Logging:File"]);
 var logger = FileLogger.Instance;
+
 logger.Debug("Run program.");
 
 var ip = configuration["Server:IPv4"]!;
 var port = configuration.GetValue<int>("Server:Port");
-var socket = new IPEndPoint(IPAddress.Parse(ip), port);
 
-var server = ServerTcp.GetOrCreate(socket, FileLogger.Instance);
-server.Run();
-logger.Debug("The program is completed.");
+try
+{
+    var server = ServerTcp.GetOrCreate(ip, port, logger);
+    server.Init();
+    server.Run();
+    logger.Debug("The program is completed.");
+}
+catch (Exception ex)
+{
+    logger.Error(ex.Message);
+}
+finally
+{
+    // TODO: реализовать остановку сервера
+}
