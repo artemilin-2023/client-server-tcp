@@ -4,8 +4,9 @@
 
 
 # my exceptions
-!**/[Ll]og/
-!**/Logs/
+![Ll]og?/
+
+**/tmp_*
 
 **/.idea/
 
