@@ -1,12 +1,25 @@
 import logging
 import socket
 import time
+import os
 
 import configs
 
-logging.basicConfig(filename="Logs/logging.log",
+LOG_DIR = "Logs"
+FILE_NAME = "logs.log"
+FULL_PATH = os.path.join(LOG_DIR, FILE_NAME)
+
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+if not os.path.exists(FULL_PATH):
+    f = open(FULL_PATH, 'w')
+    f.close()
+
+
+logging.basicConfig(filename=FULL_PATH,
                     filemode='a',
-                    format='%(asctime)s,%(msecs)d %(name)s [%(levelname)s] | message: %(message)s',
+                    format='%(asctime)s %(name)s [%(levelname)s] | message: %(message)s',
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
 logger = logging.getLogger()
