@@ -15,13 +15,12 @@ logger.Debug("Run program.");
 
 var ip = configuration["Server:IPv4"]!;
 var port = configuration.GetValue<int>("Server:Port");
+var server = ServerTcp.GetOrCreate(ip, port, logger);
 
 try
 {
-    var server = ServerTcp.GetOrCreate(ip, port, logger);
     server.Init();
     server.Run();
-    logger.Debug("The program is completed.");
 }
 catch (Exception ex)
 {
@@ -29,5 +28,7 @@ catch (Exception ex)
 }
 finally
 {
-    // TODO: реализовать остановку сервера
+    server.Stop();
+    logger.Info("Сервер был остановлен.");
 }
+logger.Debug("The program is completed.");

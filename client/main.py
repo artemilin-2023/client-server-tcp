@@ -2,6 +2,7 @@ import logging
 import socket
 import time
 import os
+import sys
 
 import configs
 
@@ -32,12 +33,14 @@ def main():
     logger.info(f"Client {socket.getsockname()[0]}:{socket.getsockname()[1]} connected to {socket.getpeername()[0]}:{socket.getpeername()[1]}")
 
     # time.sleep(10)
-    sendMessage = "Артём Ильин Александрович"
-    logger.info(f"send data: {sendMessage}")
+    sendMessage = "Ilin Artem Aleksandrovich"
+    socket.send(len(sendMessage).to_bytes(4, "big"))
     socket.send(sendMessage.encode())
+    logger.info(f"Send message: {sendMessage}")
 
     data = socket.recv(1024)
     logger.info(f"Server retutn message: {data.decode()}")
+    socket.close()
 
 
 

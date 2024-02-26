@@ -1,25 +1,22 @@
-﻿using System.Diagnostics;
+﻿using Server.Logger;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using Server.Logger;
 
 namespace Server;
+
 
 public class ServerTcp
 {
     public bool IsRunning { get; private set; } = false;
     
-    private const int ServerWorkTime = 10000;
+    internal readonly ILogger Logger;
     
     private static ServerTcp? instance;
-
-    private bool IsConfigured = false;
-    
-    private readonly ILogger logger;
+    private bool isConfigured = false;
     private readonly IPEndPoint endPoint;
     private readonly Socket server;
-    
+    private readonly List<Connection> connections;
     private readonly object locker = new();
 
     private ServerTcp(ILogger logger, IPEndPoint endPoint, Socket server)
@@ -28,9 +25,10 @@ public class ServerTcp
         ArgumentNullException.ThrowIfNull(endPoint);
         ArgumentNullException.ThrowIfNull(server);
 
-        this.logger = logger;
+        Logger = logger;
         this.endPoint = endPoint;
         this.server = server;
+        connections = new List<Connection>();
     }
 
     public static ServerTcp GetOrCreate(string ip, int port, ILogger logger)
@@ -47,29 +45,29 @@ public class ServerTcp
 
     public void Init()
     {
-        if (!IsConfigured)
+        if (!isConfigured)
         {
             server.Bind(endPoint);
-            logger.Info($"Сервер запущен на {server.LocalEndPoint}");
+            Logger.Info($"Сервер запущен на {server.LocalEndPoint}");
             server.Listen();
-            logger.Info($"Сервер прослушивает сокет {server.LocalEndPoint}");
+            Logger.Info($"Сервер прослушивает сокет {server.LocalEndPoint}");
             
-            IsConfigured = true;
+            isConfigured = true;
         }
         else
         {
-            logger.Info("Сервер уже настроен.");
+            Logger.Info("Сервер уже настроен.");
         }
     }
 
     public void Run()
     {
-        if (!IsConfigured)
+        if (!isConfigured)
             throw new Exception("The server must be configured before running");
         
         if (IsRunning)
         {
-            logger.Warn("Сервер уже запущен.");
+            Logger.Warn("Сервер уже запущен.");
             return;
         }
 
@@ -80,56 +78,40 @@ public class ServerTcp
             {
                 var timer = new Stopwatch();
                 timer.Start();
-                
-                using var client = server.Accept();
-                var clientAddress = client.RemoteEndPoint;
-                logger.Info($"Новое подсоединение: {clientAddress}");
 
-                using var stream = new NetworkStream(client);
-                var message = GetMessageFromStream(stream);
-                logger.Info($"Полученное сообщение: {message}. От {clientAddress}");
-
-                message = Reverse(message) + " Сервер написан Ильиным Артёмом Александровичем. Группа: М3О-107Б-23";
-                Thread.Sleep(ServerWorkTime);
-                SendMessage(stream, message);
-                logger.Info($"Отпрака сообщения клиенту с адресом {clientAddress}, текст сообщения: {message}");
-                
-                client.Close();
-                logger.Info($"Клиент {clientAddress} был отключен.");
+                var client = server.Accept();
+                var connection = new Connection(client, this); // Создает объект клиента и добавляет его в коллекцию соединений
+                connection.Process();
                 
                 timer.Stop();
-                logger.Debug($"Время, затраченное на обработку клиента: {timer.Elapsed:c}");
+                Logger.Debug($"Время, затраченное на обработку клиента: {timer.Elapsed:c}");
             }
         }
     }
 
-    private string GetMessageFromStream(NetworkStream stream)
+    public void Stop()
     {
-        if (!stream.CanRead)
-            throw new Exception("Невозможно прочитать данные из потока.");
+        if (!IsRunning)
+            throw new Exception("The server is not running");
         
-        var readBuffer = new byte[512];
-        var result = new StringBuilder();
-        
-        while (stream.DataAvailable)
+        foreach (var connection in connections)
         {
-            var bytesCount = stream.Read(readBuffer);
-            result.Append(Encoding.UTF8.GetString(readBuffer, 0, bytesCount));
+            connection.Close();
         }
-
-        return result.ToString();
+        
+        server.Close();
+        IsRunning = false;
     }
 
-    private string Reverse(string s)
+    internal void AddConnections(Connection connection)
     {
-        var charArray = s.ToCharArray();
-        Array.Reverse(charArray);
-        return new string(charArray);
+        connections.Add(connection);
     }
 
-    private void SendMessage(NetworkStream stream, string message)
+    internal void Disconect(Guid id)
     {
-        var messageInBytes = Encoding.UTF8.GetBytes(message);
-        stream.Write(messageInBytes);
+        var connection = connections.First(c => c.Id == id);
+        connection.Close();
+        connections.Remove(connection);
     }
 }
