@@ -1,15 +1,25 @@
 ﻿using System.Net;
+using Logger;
 using Microsoft.Extensions.Configuration;
 using Server;
-using Server.Logger;
 
+# if DEBUG
+var builder = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.development.json");
+var configuration = builder.Build();
+# endif
+
+# if (!DEBUG)
 var builder = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json");
 var configuration = builder.Build();
+# endif
 
-FileLogger.Setup(configuration["Logging:Folder"], configuration["Logging:File"]);
-var logger = FileLogger.Instance;
+var logger = new LoggerFabric()
+    .SetJsonConfiguration("appsettings.json")
+    .Build();
 
 logger.Debug("Run program.");
 
@@ -32,3 +42,7 @@ finally
     logger.Info("Сервер был остановлен.");
 }
 logger.Debug("The program is completed.");
+
+#if DEBUG
+Console.ReadLine();
+#endif
