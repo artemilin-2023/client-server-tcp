@@ -18,7 +18,7 @@ namespace Logger
 
         private void Log(LogLevel level, string message)
         {
-            if (Level < level)
+            if (Level <= level)
             {
                 Console.ForegroundColor = level.GetColor();
                 Console.Write($"[{level}]");
@@ -36,7 +36,7 @@ namespace Logger
 
         private async Task LogAsync(LogLevel level, string message)
         {
-            if (Level < level)
+            if (Level <= level)
             {
                 Console.ForegroundColor = level.GetColor();
                 await Console.Out.WriteAsync($"[{level}]");

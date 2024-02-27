@@ -22,7 +22,7 @@ internal class FileLogger : ILogger
     
     private void Log(LogLevel level, string message)
     {
-        if (Level < level)
+        if (Level <= level)
         {
             lock (locker)
             {
@@ -62,7 +62,7 @@ internal class FileLogger : ILogger
 
     private async Task LogAsync(LogLevel level, string message)
     {
-        if (Level < level)
+        if (Level <= level)
         {
             using (var writer = new StreamWriter(filePath, true))
             {
