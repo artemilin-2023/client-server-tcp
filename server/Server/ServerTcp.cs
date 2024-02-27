@@ -1,4 +1,4 @@
-﻿using Server.Logger;
+﻿using Logger.Abstracts;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
