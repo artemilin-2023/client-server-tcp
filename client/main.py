@@ -22,7 +22,7 @@ logging.basicConfig(filename=FULL_PATH,
                     filemode='a',
                     format='%(asctime)s %(name)s [%(levelname)s] | message: %(message)s',
                     datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 logger = logging.getLogger()
 
 socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
@@ -32,7 +32,7 @@ def main():
     socket.connect((configs.IP, configs.PORT))
     logger.info(f"Client {socket.getsockname()[0]}:{socket.getsockname()[1]} connected to {socket.getpeername()[0]}:{socket.getpeername()[1]}")
 
-    # time.sleep(10)
+    time.sleep(5)
     sendMessage = "Ilin Artem Aleksandrovich"
     socket.send(len(sendMessage).to_bytes(4, "big"))
     socket.send(sendMessage.encode())
@@ -52,5 +52,4 @@ if __name__ == "__main__":
         logger.error(ex)
     finally:
         socket.close()
-    
 logger.debug("End program.\n")
