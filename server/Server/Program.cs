@@ -8,6 +8,10 @@ var builder = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.development.json");
 var configuration = builder.Build();
+
+var logger = new LoggerFabric()
+    .SetJsonConfiguration("appsettings.development.json")
+    .Build();
 # endif
 
 # if (!DEBUG)
@@ -15,11 +19,13 @@ var builder = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json");
 var configuration = builder.Build();
-# endif
 
 var logger = new LoggerFabric()
     .SetJsonConfiguration("appsettings.json")
     .Build();
+# endif
+
+
 
 logger.Debug("Run program.");
 
