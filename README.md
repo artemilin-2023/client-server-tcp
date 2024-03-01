@@ -37,7 +37,7 @@ fabric.SetLogLevel(LogLevel.Debug);
 ILogger logger = fabric.Build();
 ```
 
-```LogLevel``` - обязательный параметр во всех случаях. Если будет указан только он, то метод ```Build``` вернет консольный логер, если указать ```File```, то вернется файловый логгер.
+```LogLevel``` - обязательный параметр во всех случаях. Если будет указан только он, то метод ```Build``` вернет консольный логгер, если указать ```File```, то вернется файловый логгер.
 Для конфигурации логгера воспользуйтесь методами ```SetBasePath```, ```SetFile```, ```SetLogLevel```:
 ``` C#
 var fabric = new LoggerFabric();
@@ -76,7 +76,7 @@ ILogger logger = new LoggerFabric()
 
 ILogger
 ---
-```ILogger``` - интерфейс, описывающий взаимодействие с логером.
+```ILogger``` - интерфейс, описывающий взаимодействие с логгером.
 ``` C#
 ILogger logger = new LoggerFabric().SetLogLevel(LogLevel.Debug).Build();
 
