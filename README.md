@@ -21,7 +21,7 @@
 
 ## Использование
 Для упрощения восприятия кода, я не буду использовать операторы верхнего уровня. Так же не будут указываться неймспейсы:
-```
+``` C#
 using Logger;
 using Logger.Abstracts;
 ```
@@ -30,7 +30,7 @@ LoggerFabric
 --- 
 За настройку и создание объекта логгера, отвечает класс ```LoggerFabric```. После конфигурации воспользуйтесь методом ```Build```, чтобы 
 получить объект типа ```ILogger```:
-```
+``` C#
 LoggerFabric fabric = new LoggerFabric();
 fabric.SetLogLevel(LogLevel.Debug);
 
@@ -39,7 +39,7 @@ ILogger logger = fabric.Build();
 
 ```LogLevel``` - обязательный параметр во всех случаях. Если будет указан только он, то метод ```Build``` вернет консольный логер, если указать ```File```, то вернется файловый логгер.
 Для конфигурации логгера воспользуйтесь методами ```SetBasePath```, ```SetFile```, ```SetLogLevel```:
-```
+``` C#
 var fabric = new LoggerFabric();
 fabric.SetLogLevel(LogLevel.Debug); // Устанавливает уровень логирования.
 fabric.SetBasePath("./path/to/folder"); // Устанавливает путь до папки, в которой бует лог-файл.
@@ -49,7 +49,7 @@ var logger = fabric.Build();
 ```
 
 Так же поддерживается возможность конфигурации из json файла с помощью метода ```SetJsonConfiguration```:
-```
+``` C#
 var fabric = new LoggerFabric();
 fabric.SetJsonConfiguration("./path/to/configuration.json");
 ```
@@ -66,7 +66,7 @@ fabric.SetJsonConfiguration("./path/to/configuration.json");
 ```
 
 Альтернативный способ конфигурации с помощью каскадного вызова методов:
-```
+``` C#
 ILogger logger = new LoggerFabric()
     .SetBasePath("./Logs")
     .SetFile("logs.log")
@@ -77,7 +77,7 @@ ILogger logger = new LoggerFabric()
 ILogger
 ---
 ```ILogger``` - интерфейс, описывающий взаимодействие с логером.
-```
+``` C#
 ILogger logger = new LoggerFabric().SetLogLevel(LogLevel.Debug).Build();
 
 // Синхронные методы:
@@ -100,7 +100,7 @@ await logger.FatalAsync("fatal");
 LogLevel
 ---
 ```LogLevel``` - перечисление доступных уровней логирования. Фильтрация происходит по следующему принципу: выводятся логи указанного уровня и всех уровней ниже.
-```
+``` C#
 Debug = 0,
 Info = 1,
 Warning = 2,
