@@ -34,7 +34,6 @@ def main():
 
     time.sleep(5)
     sendMessage = "Ilin Artem Aleksandrovich"
-    socket.send(len(sendMessage).to_bytes(4, "big"))
     socket.send(sendMessage.encode())
     logger.info(f"Send message: {sendMessage}")
 
