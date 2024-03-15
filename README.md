@@ -156,4 +156,7 @@ git clone https://github.com/artemilin-2023/client-server-tcp.git
 cd ./client-server-tcp/
 ```
 
-Шаг 3 - компилируем библиотеку логирования
+Шаг 3 - компилируем библиотеку логирования 
+```
+dotnet build --project ./logger/Logger/Logger.sln --configuration Release
+```
