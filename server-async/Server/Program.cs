@@ -24,8 +24,6 @@ var logger = new LoggerFabric()
     .Build();
 # endif
 
-logger = new LoggerFabric().SetLogLevel(LogLevel.Debug).Build();
-
 await logger.DebugAsync("Run program.");
 
 var ip = configuration["Server:IPv4"]!;

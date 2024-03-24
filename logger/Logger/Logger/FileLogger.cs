@@ -68,7 +68,7 @@ internal class FileLogger : ILogger
             {
                 using var writer = new StreamWriter(filePath, true);
                 var log = $"[{level}] - {DateTime.Now:G} | {message}";
-                await writer.WriteLineAsync(message);
+                await writer.WriteLineAsync(log);
             }
         }
     }
