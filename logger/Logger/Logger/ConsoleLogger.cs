@@ -6,7 +6,9 @@ namespace Logger
     {
         public static LogLevel? Level { get; private set; } = LogLevel.Debug;
 
-        public ConsoleLogger(LogLevel? logLevel)
+        private static readonly RWLocker locker = new();
+
+        internal ConsoleLogger(LogLevel? logLevel)
         {
             Level = logLevel;
         }
@@ -20,12 +22,15 @@ namespace Logger
         {
             if (Level <= level)
             {
-                Console.ForegroundColor = level.GetColor();
-                Console.Write($"[{level}]");
-                Console.ResetColor();
+                using (locker.StartWrite())
+                {
+                    Console.ForegroundColor = level.GetColor();
+                    Console.Write($"[{level}]");
+                    Console.ResetColor();
 
-                var log = $" - {DateTime.Now:G} | {message}";
-                Console.WriteLine(log);
+                    var log = $" - {DateTime.Now:G} | {message}";
+                    Console.WriteLine(log);
+                }
             }
         }
 
@@ -38,12 +43,15 @@ namespace Logger
         {
             if (Level <= level)
             {
-                Console.ForegroundColor = level.GetColor();
-                await Console.Out.WriteAsync($"[{level}]");
-                Console.ResetColor();
+                using (locker.StartWrite())
+                {
+                    Console.ForegroundColor = level.GetColor();
+                    await Console.Out.WriteAsync($"[{level}]");
+                    Console.ResetColor();
 
-                var log = $" - {DateTime.Now:G} | {message}";
-                await Console.Out.WriteLineAsync(log);
+                    var log = $" - {DateTime.Now:G} | {message}";
+                    await Console.Out.WriteLineAsync(log);
+                }
             }
         }
 

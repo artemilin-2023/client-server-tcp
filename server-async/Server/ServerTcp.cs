@@ -49,15 +49,15 @@ public class ServerTcp
         if (!isConfigured)
         {
             server.Bind(endPoint);
-            Logger.Info($"Сервер запущен на {server.LocalEndPoint}");
+            await Logger.InfoAsync($"Сервер запущен на {server.LocalEndPoint}");
             server.Listen();
-            Logger.Info($"Сервер прослушивает сокет {server.LocalEndPoint}");
+            await Logger.InfoAsync($"Сервер прослушивает сокет {server.LocalEndPoint}");
             
             isConfigured = true;
         }
         else
         {
-            Logger.Info("Сервер уже настроен.");
+            await Logger.InfoAsync("Сервер уже настроен.");
         }
     }
 
@@ -68,7 +68,7 @@ public class ServerTcp
 
         if (IsRunning)
         {
-            Logger.Warn("Сервер уже запущен.");
+            await Logger.WarnAsync("Сервер уже запущен.");
             return;
         }
 
@@ -85,7 +85,7 @@ public class ServerTcp
             
 
             timer.Stop();
-            Logger.Debug($"Время, затраченное на обработку клиента: {timer.Elapsed:c}");
+            await Logger.DebugAsync($"Время, затраченное на обработку клиента: {timer.Elapsed:c}");
 
         }
 
@@ -105,7 +105,7 @@ public class ServerTcp
         IsRunning = false;
     }
 
-    internal void AddConnections(Connection connection)
+    internal void AddConnection(Connection connection)
     {
         lock (locker)
         {
@@ -115,7 +115,7 @@ public class ServerTcp
 
     internal async Task DisconectAsync(Connection connection)
     {
-        Logger.Info($"Закрываю соединение с {connection.Socket.RemoteEndPoint}");
+        await Logger.InfoAsync($"Закрываю соединение с {connection.Socket.RemoteEndPoint}");
 
         lock (locker)
         {

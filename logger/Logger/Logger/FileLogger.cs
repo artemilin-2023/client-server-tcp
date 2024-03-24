@@ -6,8 +6,8 @@ internal class FileLogger : ILogger
 {
     public static LogLevel? Level { get; private set; } = LogLevel.Debug;
     
-    private static string filePath; 
-    private static readonly object locker = new();
+    private static string filePath;
+    private static readonly RWLocker locker = new RWLocker();
 
     internal FileLogger(string path, LogLevel? logLevel) 
     {
@@ -24,7 +24,7 @@ internal class FileLogger : ILogger
     {
         if (Level <= level)
         {
-            lock (locker)
+            using (locker.StartWrite())
             {
                 using (var writer = new StreamWriter(filePath, true))
                 {
@@ -64,8 +64,9 @@ internal class FileLogger : ILogger
     {
         if (Level <= level)
         {
-            using (var writer = new StreamWriter(filePath, true))
+            using (locker.StartWrite())
             {
+                using var writer = new StreamWriter(filePath, true);
                 var log = $"[{level}] - {DateTime.Now:G} | {message}";
                 await writer.WriteLineAsync(message);
             }

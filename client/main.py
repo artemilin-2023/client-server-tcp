@@ -33,7 +33,7 @@ def main():
     logger.info(f"Client {socket.getsockname()[0]}:{socket.getsockname()[1]} connected to {socket.getpeername()[0]}:{socket.getpeername()[1]}")
 
     time.sleep(5)
-    sendMessage = "Ilin Artem Aleksandrovich"
+    sendMessage = "Ilin Artem Aleksandrovich M3O-107b-23"
     socket.send(sendMessage.encode())
     logger.info(f"Send message: {sendMessage}")
 

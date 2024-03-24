@@ -8,6 +8,7 @@ namespace Server;
 public class Connection
 {
     private const int WorkTimeEmulated = 10000;
+    private const int BufferSize = 512;
     
     internal readonly Guid Id;
     internal readonly Socket Socket;
@@ -27,7 +28,7 @@ public class Connection
         logger = server.Logger;
         stream = new NetworkStream(socket);
         
-        server.AddConnections(this);
+        server.AddConnection(this);
         logger.Info($"Новое соединение: {socket.RemoteEndPoint}");
     }
 
@@ -39,7 +40,7 @@ public class Connection
         }
         catch (Exception ex)
         {
-            logger.Error($"При обработке клиента произошла ошибка: {ex.Message}");
+            await logger.ErrorAsync($"При обработке клиента произошла ошибка: {ex.Message}");
         }
         finally
         {
@@ -49,12 +50,12 @@ public class Connection
 
     private async Task TryProcessAsync()
     {
-        logger.Debug($"Обработка в потоке {Thread.CurrentThread.ManagedThreadId} для клиента {Socket.RemoteEndPoint}"); 
+        await logger.DebugAsync($"Обработка в потоке {Thread.CurrentThread.ManagedThreadId} для клиента {Socket.RemoteEndPoint}"); 
 
         var message = await ReadAsync();
-        logger.Info($"Получено сообщение: {message} | От {Socket.RemoteEndPoint}");
-        message = Reverse(message) + " Сервер напиан Ильиным Артёмом Александровичем. М3О-107Б-23";
-        logger.Info($"Отправляю сообдщение: {message} | Кому: {Socket.RemoteEndPoint}");
+        await logger.InfoAsync($"Получено сообщение: {message} | От {Socket.RemoteEndPoint}");
+        message = Reverse(message) + " Сервер написан Ильиным Артёмом Александровичем. М3О-107Б-23";
+        await logger.InfoAsync($"Отправляю сообщение: {message} | Кому: {Socket.RemoteEndPoint}");
 
         Thread.Sleep(WorkTimeEmulated);
         await SendAsync(message);
@@ -62,25 +63,9 @@ public class Connection
 
     private async Task<string> ReadAsync()
     {
-        var length = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(await ReadBytesAsync(sizeof(int)), 0));
-        return Encoding.UTF8.GetString(await ReadBytesAsync(length));
-    }
-
-    private async Task<byte[]> ReadBytesAsync(int size)
-    {
-        var buffer = new byte[size];
-        int alreadyReadCount = 0;
-
-        while (size - alreadyReadCount > 0)
-        {
-            var read = await stream.ReadAsync(buffer.AsMemory(alreadyReadCount, size - alreadyReadCount));
-            if (read == 0)
-                throw new EndOfStreamException();
-            
-            alreadyReadCount += read;
-        }
-
-        return buffer;
+        var buffer = new byte[BufferSize];
+        await stream.ReadAsync(buffer, 0, buffer.Length);
+        return Encoding.UTF8.GetString(buffer).TrimEnd('\0');
     }
 
     private string Reverse(string s)
@@ -90,8 +75,6 @@ public class Connection
         return new string(charArray);
     }
     
-    // По хорошему, надо передавть данные, указывая их размер,
-    // но мне лень переделывать код клиента для грамотного считывания.
     private async Task SendAsync(string message)
     {
         var messageInBytes = Encoding.UTF8.GetBytes(message);
@@ -103,4 +86,29 @@ public class Connection
         stream.Close();
         Socket.Close();
     }
+
+    // Так как это задание необходимо будет выполнять в паре, и, скорее всего,
+    // никто не сделает отправку данных нормальным способом с указанием длины, я буду читать/отправлять данные "как есть"
+    //private async Task<string> ReadAsync()
+    //{
+    //    var length = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(await ReadBytesAsync(sizeof(int)), 0));
+    //    return Encoding.UTF8.GetString(await ReadBytesAsync(length));
+    //}
+
+    //private async Task<byte[]> ReadBytesAsync(int size)
+    //{
+    //    var buffer = new byte[size];
+    //    int alreadyReadCount = 0;
+
+    //    while (size - alreadyReadCount > 0)
+    //    {
+    //        var read = await stream.ReadAsync(buffer.AsMemory(alreadyReadCount, size - alreadyReadCount));
+    //        if (read == 0)
+    //            throw new EndOfStreamException();
+
+    //        alreadyReadCount += read;
+    //    }
+
+    //    return buffer;
+    //}
 }

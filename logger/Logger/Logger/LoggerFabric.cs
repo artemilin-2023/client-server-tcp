@@ -102,5 +102,10 @@ namespace Logger
                 return new ConsoleLogger(logLevel);
             }
         }
+
+        public object SetLogLevel(object debug)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

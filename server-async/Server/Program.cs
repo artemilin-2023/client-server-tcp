@@ -1,4 +1,5 @@
 ﻿using Logger;
+using Logger.Abstracts;
 using Microsoft.Extensions.Configuration;
 using Server;
 
@@ -23,9 +24,9 @@ var logger = new LoggerFabric()
     .Build();
 # endif
 
+logger = new LoggerFabric().SetLogLevel(LogLevel.Debug).Build();
 
-
-logger.Debug("Run program.");
+await logger.DebugAsync("Run program.");
 
 var ip = configuration["Server:IPv4"]!;
 var port = configuration.GetValue<int>("Server:Port");
@@ -38,15 +39,11 @@ try
 }
 catch (Exception ex)
 {
-    logger.Fatal(ex.Message);
+    await logger.FatalAsync(ex.Message);
 }
 finally
 {
     server.Stop();
-    logger.Info("Сервер был остановлен.");
+    await logger.InfoAsync("Сервер был остановлен.");
 }
-logger.Debug("The program is completed.");
-
-#if DEBUG
-Console.ReadLine();
-#endif
+await logger.DebugAsync("The program is completed.");
